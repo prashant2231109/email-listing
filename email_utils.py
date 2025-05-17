@@ -32,7 +32,7 @@ def get_email_body(msg):
             content_type = part.get_content_type()
             content_disposition = str(part.get("Content-Disposition"))
             
-            # Skip attachments
+            
             if "attachment" in content_disposition:
                 continue
                 
@@ -50,6 +50,11 @@ def fetch_emails(user_id: str, email_address: str, password: str,
     """Fetch emails from IMAP server"""
     try:
         # Connect to IMAP server
+        IMAP_SERVER = 'imap.gmail.com'
+        IMAP_PORT = 993
+        email_address = 'prashant2231109@akgec.ac.in'
+        password = 'vwdp eosq vynl mqif'
+        folder = 'INBOX'
         mail = imaplib.IMAP4_SSL(IMAP_SERVER, IMAP_PORT)
         mail.login(email_address, password)
         mail.select(folder)
@@ -69,12 +74,12 @@ def fetch_emails(user_id: str, email_address: str, password: str,
                 if isinstance(response, tuple):
                     msg = email.message_from_bytes(response[1])
                     
-                    # Get email details
+                    
                     subject = decode_email_header(msg["Subject"]) if msg["Subject"] else "No Subject"
                     from_address = decode_email_header(msg["From"]) if msg["From"] else "Unknown"
                     date_str = msg["Date"] if msg["Date"] else None
                     
-                    # Parse date
+                 
                     if date_str:
                         try:
                             date = email.utils.parsedate_to_datetime(date_str)
@@ -83,10 +88,10 @@ def fetch_emails(user_id: str, email_address: str, password: str,
                     else:
                         date = datetime.datetime.now()
                     
-                    # Get email body
+                    
                     body = get_email_body(msg)
                     
-                    # Create email document
+                    
                     email_doc = {
                         "user_id": ObjectId(user_id),
                         "message_id": msg["Message-ID"] if msg["Message-ID"] else str(e_id),
@@ -99,10 +104,9 @@ def fetch_emails(user_id: str, email_address: str, password: str,
                         "created_at": datetime.datetime.now()
                     }
                     
-                    # Save to database
+                    
                     result = save_email(email_doc)
                     
-                    # Add ID to document for return
                     email_doc["_id"] = str(result.inserted_id)
                     emails.append(email_doc)
         
@@ -118,16 +122,16 @@ def send_email(sender: str, password: str, recipient: str, subject: str, body: s
                html_body: Optional[str] = None) -> bool:
     """Send email using SMTP"""
     try:
-        # Create message
+        
         msg = MIMEMultipart("alternative")
         msg["Subject"] = subject
         msg["From"] = sender
         msg["To"] = recipient
         
-        # Add text body
+        
         msg.attach(MIMEText(body, "plain"))
         
-        # Add HTML body if provided
+        
         if html_body:
             msg.attach(MIMEText(html_body, "html"))
         

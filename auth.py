@@ -10,7 +10,7 @@ from bson import ObjectId
 from config import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
 from database import get_user_by_email
 
-# Password hashing
+
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -73,7 +73,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     user = get_user_by_email(token_data.email)
     if user is None:
         raise credentials_exception
-    # Convert ObjectId to string for JSON serialization
+   
     user["_id"] = str(user["_id"])
     return user
 

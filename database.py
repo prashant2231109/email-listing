@@ -5,13 +5,13 @@ import json
 from datetime import datetime
 from bson import ObjectId
 
-# Use in-memory storage when MongoDB is not available
+
 in_memory_db = {
     "users": [],
     "emails": []
 }
 
-# Custom JSON encoder for MongoDB ObjectId and datetime
+
 class MongoJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, ObjectId):
@@ -20,19 +20,19 @@ class MongoJSONEncoder(json.JSONEncoder):
             return obj.isoformat()
         return super().default(obj)
 
-# Try to connect to MongoDB, use in-memory storage if connection fails
+
 try:
-    # Create MongoDB client
+   
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-    # Test connection
+   
     client.server_info()
     db = client[DB_NAME]
     
-    # Collections
+    
     users_collection = db["users"]
     emails_collection = db["emails"]
     
-    # Create indexes for better performance
+    
     users_collection.create_index("email", unique=True)
     emails_collection.create_index("user_id")
     emails_collection.create_index("date")
@@ -60,12 +60,12 @@ def create_user(user_data: dict):
     if USE_MONGO:
         return users_collection.insert_one(user_data)
     else:
-        # Check if email already exists
+        
         for user in in_memory_db["users"]:
             if user["email"] == user_data["email"]:
                 raise Exception("Email already exists")
         
-        # Add ObjectId
+        
         user_data["_id"] = ObjectId()
         in_memory_db["users"].append(user_data)
         
@@ -91,7 +91,7 @@ def save_email(email_data: dict):
     if USE_MONGO:
         return emails_collection.insert_one(email_data)
     else:
-        # Add ObjectId
+        
         email_data["_id"] = ObjectId()
         in_memory_db["emails"].append(email_data)
         
@@ -116,7 +116,7 @@ def get_user_emails(user_id, skip=0, limit=20, filters=None):
         
         return list(emails_collection.find(query).sort("date", -1).skip(skip).limit(limit))
     else:
-        # Filter emails
+        
         filtered_emails = []
         for email in in_memory_db["emails"]:
             if email["user_id"] == user_id:
@@ -134,10 +134,10 @@ def get_user_emails(user_id, skip=0, limit=20, filters=None):
                 if include:
                     filtered_emails.append(email)
         
-        # Sort by date (newest first)
+        
         filtered_emails.sort(key=lambda x: x["date"], reverse=True)
         
-        # Apply pagination
+        
         return filtered_emails[skip:skip+limit]
 
 def get_email_count(user_id, filters=None):
@@ -155,7 +155,7 @@ def get_email_count(user_id, filters=None):
         
         return emails_collection.count_documents(query)
     else:
-        # Use the same filtering logic as get_user_emails but return count
+        
         return len(get_user_emails(user_id, 0, 9999, filters))
 
 def get_email_by_id(email_id):

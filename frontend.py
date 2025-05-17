@@ -4,17 +4,17 @@ import json
 from datetime import datetime, timedelta
 import pandas as pd
 
-# API URL
+
 API_URL = "http://localhost:8000"
 
-# Set page config
+
 st.set_page_config(
     page_title="Email Documentation System",
     page_icon="📧",
     layout="wide"
 )
 
-# Initialize session state
+
 if "token" not in st.session_state:
     st.session_state.token = None
 if "user" not in st.session_state:
@@ -32,7 +32,7 @@ if "page" not in st.session_state:
 if "filters" not in st.session_state:
     st.session_state.filters = {}
 
-# Helper functions
+
 def register_user(email, password, full_name):
     """Register a new user"""
     try:
@@ -57,7 +57,7 @@ def login_user(email, password):
         if response.status_code == 200:
             token_data = response.json()
             st.session_state.token = token_data["access_token"]
-            # Get user info
+           
             user_response = requests.get(
                 f"{API_URL}/users/me",
                 headers={"Authorization": f"Bearer {st.session_state.token}"}
@@ -151,7 +151,7 @@ def logout():
     st.session_state.page = 0
     st.session_state.filters = {}
 
-# Page functions
+
 def login_page():
     """Login page"""
     st.title("📧 Email Documentation System")

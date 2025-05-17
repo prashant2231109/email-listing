@@ -21,10 +21,10 @@ from email_utils import fetch_emails, send_email
 
 app = FastAPI(title="Email Documentation API")
 
-# CORS middleware
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production, replace with specific origins
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -33,7 +33,7 @@ app.add_middleware(
 @app.post("/register", response_model=UserResponse)
 async def register_user(user: UserCreate):
     """Register a new user"""
-    # Check if user already exists
+    
     from database import get_user_by_email
     existing_user = get_user_by_email(user.email)
     if existing_user:
@@ -42,7 +42,7 @@ async def register_user(user: UserCreate):
             detail="Email already registered"
         )
     
-    # Create user
+   
     hashed_password = get_password_hash(user.password)
     user_data = {
         "email": user.email,
@@ -160,14 +160,14 @@ async def get_email(
                 detail="Email not found"
             )
         
-        # Check if email belongs to current user
+        
         if str(email["user_id"]) != current_user["_id"]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Not authorized to access this email"
             )
         
-        # Convert ObjectId to string for JSON serialization
+        
         email["id"] = str(email["_id"])
         email["_id"] = str(email["_id"])
         email["user_id"] = str(email["user_id"])
