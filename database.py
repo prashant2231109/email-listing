@@ -26,7 +26,7 @@ try:
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
    
     client.server_info()
-    db = client[DB_NAME]
+    db = client["mydatabase"]
     
     
     users_collection = db["users"]
